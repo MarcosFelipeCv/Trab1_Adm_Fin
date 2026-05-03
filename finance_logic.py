@@ -1,15 +1,15 @@
 import yfinance as yf
 import pandas as pd
 
-
-def pegar_valor(df, nome_linha):
-    """
-    Busca uma linha dentro do DataFrame do Yahoo Finance.
-    Se não encontrar, retorna None.
-    """
+    
+def pegar_valor(df, nomes_possiveis):
+    """Busca em uma lista de chaves possíveis para evitar erros entre mercados."""
+    if isinstance(nomes_possiveis, str):
+        nomes_possiveis = [nomes_possiveis]
     try:
-        if nome_linha in df.index:
-            return df.loc[nome_linha].iloc[0]
+        for nome in nomes_possiveis:
+            if nome in df.index:
+                return df.loc[nome].iloc[0]
         return None
     except Exception:
         return None
@@ -43,6 +43,24 @@ def formatar_numero(valor):
         return round(valor, 2)
     except Exception:
         return None
+    
+def formatar_grande_numero(valor):
+    """Converte números gigantes em formato legível (Mi, Bi, Tri)."""
+    if valor is None:
+        return None
+    try:
+        abs_valor = abs(valor)
+        prefixo = "R$ "
+        if abs_valor >= 1_000_000_000_000:
+            return f"{prefixo}{valor / 1_000_000_000_000:.2f} Tri"
+        elif abs_valor >= 1_000_000_000:
+            return f"{prefixo}{valor / 1_000_000_000:.2f} Bi"
+        elif abs_valor >= 1_000_000:
+            return f"{prefixo}{valor / 1_000_000:.2f} Mi"
+        else:
+            return f"{prefixo}{valor:,.2f}"
+    except Exception:
+        return valor
 
 
 def get_financial_indexes(ticker_symbol):
@@ -71,8 +89,8 @@ def get_financial_indexes(ticker_symbol):
         # =========================
         ativo_total = pegar_valor(balanco, "Total Assets")
         patrimonio_liquido = pegar_valor(balanco, "Stockholders Equity")
-        ativo_circulante = pegar_valor(balanco, "Current Assets")
-        passivo_circulante = pegar_valor(balanco, "Current Liabilities")
+        ativo_circulante = pegar_valor(balanco, ["Current Assets", "Total Current Assets"])
+        passivo_circulante = pegar_valor(balanco, ["Current Liabilities", "Total Current Liabilities"])
         passivo_total = pegar_valor(balanco, "Total Liabilities Net Minority Interest")
         divida_total = pegar_valor(balanco, "Total Debt")
         caixa = pegar_valor(balanco, "Cash And Cash Equivalents")
@@ -150,14 +168,26 @@ def get_financial_indexes(ticker_symbol):
         # INDICADORES DE MERCADO
         # =========================
         preco_atual = info.get("currentPrice")
+        div_rate = info.get("dividendRate")
         valor_mercado = info.get("marketCap")
         lpa = info.get("trailingEps")
         vpa = info.get("bookValue")
-        dividend_yield = info.get("dividendYield")
         beta = info.get("beta")
 
         pl = dividir(preco_atual, lpa)
         pvp = dividir(preco_atual, vpa)
+
+        #calculo do Dividend Yield com múltiplas tentativas para garantir precisão e compatibilidade entre mercados
+        # 1. Tenta calcular: Dividend Rate / Preço Atual
+        dividend_yield = dividir(div_rate, preco_atual)
+
+        # 2. Se não houver 'dividendRate', busca o campo pronto da API
+        if dividend_yield is None:
+            dividend_yield = info.get("dividendYield") or info.get("trailingAnnualDividendYield")
+
+        # 3. Trava de Segurança: Se o valor vier como 7.96 (em vez de 0.0796), normaliza
+        if dividend_yield and dividend_yield > 1.0:
+            dividend_yield = dividir(dividend_yield, 100)
 
         return {
             "ticker": ticker_symbol,
@@ -168,7 +198,7 @@ def get_financial_indexes(ticker_symbol):
             # Liquidez
             "liq_corrente": formatar_numero(liq_corrente),
             "liq_seca": formatar_numero(liq_seca),
-            "capital_giro": formatar_numero(capital_giro),
+            "capital_giro": formatar_grande_numero(capital_giro),
 
             # Rentabilidade
             "margem_bruta": formatar_percentual(margem_bruta),
@@ -185,18 +215,18 @@ def get_financial_indexes(ticker_symbol):
             # Endividamento
             "endividamento_geral": formatar_percentual(endividamento_geral),
             "divida_patrimonio": formatar_numero(divida_patrimonio),
-            "divida_liquida": formatar_numero(divida_liquida),
+            "divida_liquida": formatar_grande_numero(divida_liquida),
             "divida_liquida_patrimonio": formatar_numero(divida_liquida_patrimonio),
 
             # Fluxo de caixa
-            "fluxo_operacional": formatar_numero(fluxo_operacional),
-            "capex": formatar_numero(capex),
-            "fluxo_caixa_livre": formatar_numero(fluxo_caixa_livre),
+            "fluxo_operacional": formatar_grande_numero(fluxo_operacional),
+            "capex": formatar_grande_numero(capex),
+            "fluxo_caixa_livre": formatar_grande_numero(fluxo_caixa_livre),
             "margem_fcf": formatar_percentual(margem_fcf),
 
             # Mercado
             "preco_atual": preco_atual,
-            "valor_mercado": valor_mercado,
+            "valor_mercado": formatar_grande_numero(valor_mercado),
             "lpa": lpa,
             "vpa": vpa,
             "pl": formatar_numero(pl),
