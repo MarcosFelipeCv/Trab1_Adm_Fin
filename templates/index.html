@@ -5,18 +5,20 @@
     <title>Analisador Universal - SI UFMG</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
-    <div class="container py-5" style="max-width: 800px;">
-        <h2 class="text-center mb-4">📊 Analisador Financeiro de SI</h2>
-        
-        <div class="card shadow mb-4">
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Analisador de Índices Financeiros</h1>
+
+        <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <form method="POST" id="analiseForm">
-                    <label class="form-label">Busque por Nome ou Ticker (ex: Petrobras, Apple, ITUB4)</label>
-                    <div class="input-group">
-                        <input type="text" id="tickerInput" name="ticker" class="form-control" 
-                               placeholder="Comece a digitar..." autocomplete="off" list="tickersList" oninput="debounceSearch()">
-                        <button type="submit" class="btn btn-primary">Analisar Agora</button>
+                <form method="POST" class="row g-3 align-items-center">
+                    <div class="col-md-9">
+                        <input type="text" id="tickerInput" name="ticker" class="form-control"
+                               placeholder="Digite o Ticker (ex: PETR4.SA, MSFT, AAPL)" autocomplete="off" list="tickersList" oninput="debounceSearch()" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Analisar</button>
                     </div>
                     <datalist id="tickersList"></datalist>
                     <div id="loading" class="form-text text-muted" style="display:none;">Buscando sugestões...</div>
@@ -29,39 +31,92 @@
         {% endif %}
 
         {% if resultado %}
-        <div class="card shadow border-0">
-            <div class="card-header bg-dark text-white d-flex justify-content-between">
-                <span><strong>{{ resultado.nome }}</strong></span>
-                <span class="badge bg-secondary">{{ resultado.pais }}</span>
-            </div>
-            <div class="card-body">
-                <p class="text-muted small mb-3">Setor: {{ resultado.setor }} | Moeda: {{ resultado.moeda }}</p>
-                
-                <div class="row text-center mb-4">
-                    <div class="col-6 border-end">
-                        <small class="text-uppercase text-muted d-block">Liquidez Corrente</small>
-                        <h4 class="mb-0">{{ resultado.liq_corrente }}</h4>
-                    </div>
-                    <div class="col-6">
-                        <small class="text-uppercase text-muted d-block">ROE (Rentabilidade)</small>
-                        <h4 class="text-success mb-0">{{ resultado.roe }}</h4>
-                    </div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">{{ resultado.nome }}</h3>
+                    <small>{{ resultado.setor }} | {{ resultado.industria }}</small>
                 </div>
 
-                <div class="bg-light p-3 rounded">
-                    <h6 class="border-bottom pb-2">Desmembramento DuPont (Capítulo 2)</h6>
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Margem Líquida</span> <strong>{{ resultado.margem_liquida }}</strong>
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <h5>Liquidez</h5>
+                            <table class="table table-sm">
+                                <tr><td>Liquidez Corrente</td><td><strong>{{ resultado.liq_corrente }}</strong></td></tr>
+                                <tr><td>Liquidez Seca</td><td><strong>{{ resultado.liq_seca }}</strong></td></tr>
+                                <tr><td>Capital de Giro</td><td><strong>{{ resultado.capital_giro }}</strong></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>Rentabilidade</h5>
+                            <table class="table table-sm">
+                                <tr><td>Margem Bruta</td><td><strong>{{ resultado.margem_bruta }}</strong></td></tr>
+                                <tr><td>Margem Operacional</td><td><strong>{{ resultado.margem_operacional }}</strong></td></tr>
+                                <tr><td>Margem Líquida</td><td><strong>{{ resultado.margem_liquida }}</strong></td></tr>
+                                <tr><td>ROA</td><td><strong>{{ resultado.roa }}</strong></td></tr>
+                                <tr class="table-success"><td><strong>ROE</strong></td><td><strong>{{ resultado.roe }}</strong></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>Análise DuPont</h5>
+                            <table class="table table-sm">
+                                <tr><td>Margem Líquida</td><td><strong>{{ resultado.margem_liquida }}</strong></td></tr>
+                                <tr><td>Giro do Ativo</td><td><strong>{{ resultado.giro_ativo }}</strong></td></tr>
+                                <tr><td>Multiplicador PL</td><td><strong>{{ resultado.multiplicador_pl }}</strong></td></tr>
+                                <tr class="table-success"><td><strong>ROE DuPont</strong></td><td><strong>{{ resultado.roe_dupont }}</strong></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>Endividamento</h5>
+                            <table class="table table-sm">
+                                <tr><td>Endividamento Geral</td><td><strong>{{ resultado.endividamento_geral }}</strong></td></tr>
+                                <tr><td>Dívida / Patrimônio</td><td><strong>{{ resultado.divida_patrimonio }}</strong></td></tr>
+                                <tr><td>Dívida Líquida</td><td><strong>{{ resultado.divida_liquida }}</strong></td></tr>
+                                <tr><td>Dívida Líquida / Patrimônio</td><td><strong>{{ resultado.divida_liquida_patrimonio }}</strong></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>Fluxo de Caixa</h5>
+                            <table class="table table-sm">
+                                <tr><td>Fluxo Operacional</td><td><strong>{{ resultado.fluxo_operacional }}</strong></td></tr>
+                                <tr><td>CapEx</td><td><strong>{{ resultado.capex }}</strong></td></tr>
+                                <tr><td>Fluxo de Caixa Livre</td><td><strong>{{ resultado.fluxo_caixa_livre }}</strong></td></tr>
+                                <tr><td>Margem FCF</td><td><strong>{{ resultado.margem_fcf }}</strong></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>Indicadores de Mercado</h5>
+                            <table class="table table-sm">
+                                <tr><td>Preço Atual</td><td><strong>{{ resultado.preco_atual }}</strong></td></tr>
+                                <tr><td>Valor de Mercado</td><td><strong>{{ resultado.valor_mercado }}</strong></td></tr>
+                                <tr><td>LPA</td><td><strong>{{ resultado.lpa }}</strong></td></tr>
+                                <tr><td>VPA</td><td><strong>{{ resultado.vpa }}</strong></td></tr>
+                                <tr><td>P/L</td><td><strong>{{ resultado.pl }}</strong></td></tr>
+                                <tr><td>P/VP</td><td><strong>{{ resultado.pvp }}</strong></td></tr>
+                                <tr><td>Dividend Yield</td><td><strong>{{ resultado.dividend_yield }}</strong></td></tr>
+                                <tr><td>Beta</td><td><strong>{{ resultado.beta }}</strong></td></tr>
+                            </table>
+                        </div>
+
                     </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Giro do Ativo</span> <strong>{{ resultado.giro_ativo }}</strong>
+
+                    <div class="mt-4 p-3 bg-warning bg-opacity-10 border border-warning rounded">
+                        <small>
+                            <strong>Comentário Automático:</strong>
+                            O ROE de {{ resultado.roe }} indica a capacidade da empresa de gerar retorno sobre o patrimônio líquido.
+                            A análise DuPont mostra que esse retorno é explicado pela margem líquida, pelo giro do ativo e pelo multiplicador do patrimônio.
+                        </small>
                     </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Multiplicador de Alavancagem</span> <strong>{{ resultado.mult_pl }}</strong>
-                    </div>
+
                 </div>
             </div>
-        </div>
         {% endif %}
     </div>
 
@@ -72,11 +127,11 @@
             timer = setTimeout(async () => {
                 const q = document.getElementById('tickerInput').value;
                 if (q.length < 2) return;
-                
+
                 document.getElementById('loading').style.display = 'block';
                 const res = await fetch(`/search_proxy?q=${q}`);
                 const data = await res.json();
-                
+
                 const list = document.getElementById('tickersList');
                 list.innerHTML = "";
                 data.forEach(item => {
