@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Analisador Financeiro - UFMG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Analisador de Índices Financeiros</h1>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="POST" class="row g-3">
+                    <div class="col-md-9">
+                        <input type="text" name="ticker" class="form-control" placeholder="Digite o Ticker (ex: PETR4.SA, MSFT, AAPL)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Analisar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if erro %}
+            <div class="alert alert-danger">{{ erro }}</div>
+        {% endif %}
+
+        {% if resultado %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">{{ resultado.nome }} ({{ resultado.setor }})</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Liquidez e Eficiência</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Liquidez Corrente
+                                    <span class="badge bg-primary rounded-pill">{{ resultado.liq_corrente }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Giro do Ativo
+                                    <span class="badge bg-primary rounded-pill">{{ resultado.giro_ativo }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Rentabilidade (Análise DuPont)</h5>
+                            <table class="table table-sm mt-2">
+                                <tr><td>Margem Líquida:</td><td><strong>{{ resultado.margem_liquida }}</strong></td></tr>
+                                <tr><td>Giro do Ativo:</td><td><strong>{{ resultado.giro_ativo }}</strong></td></tr>
+                                <tr><td>Multiplicador PL:</td><td><strong>{{ resultado.multiplicador_pl }}</strong></td></tr>
+                                <tr class="table-success"><td><strong>ROE Final:</strong></td><td><strong>{{ resultado.roe }}</strong></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-2 bg-warning bg-opacity-10 border border-warning rounded">
+                        <small><strong>Comentário Automático:</strong> Um ROE de {{ resultado.roe }} indica a eficiência da gestão em remunerar o capital próprio dos acionistas.</small>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
