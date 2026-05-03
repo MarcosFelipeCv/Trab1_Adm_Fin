@@ -28,7 +28,7 @@ Observações de Uso
 Busca Inteligente: Ao começar a digitar o nome de uma empresa, o sistema sugere automaticamente o ticker oficial via autocomplete.
 
 Resiliência Contábil (Bancos): O sistema detecta automaticamente se a empresa é uma instituição financeira e ajusta a exibição dos índices, tratando a ausência da conta de "Ativo Circulante".
-
-Normalização de Dados: O código implementa uma lógica para corrigir a heterogeneidade de dados da API, evitando erros de escala em indicadores como o Dividend Yield (ex: o erro de 800% na Petrobras).
+s
+Normalização de Dados: O código implementa uma lógica para corrigir a heterogeneidade de dados da API, evitando erros de escala em indicadores como o Dividend Yield.
 
 Trava de Segurança: Existe um limite de 3 segundos entre análises consecutivas para evitar sobrecarga e bloqueios temporários na API de dados.
