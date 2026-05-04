@@ -1,6 +1,10 @@
 Analisador Financeiro - UFMG
 Projeto acadêmico para a disciplina de Administração Financeira (Sistemas de Informação). O sistema extrai dados reais do Yahoo Finance para calcular índices fundamentais do Capítulo 2, como Liquidez, DuPont e Rentabilidade.
 
+Alunos: 
+Marcos Felipe Flores Cavalieri - 2020054692
+Bianca Gabriela Franco e Silva - 2020092756
+
  Como Rodar
 1. Requisitos
 Python instalado em sua máquina.
