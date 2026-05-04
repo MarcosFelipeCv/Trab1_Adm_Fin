@@ -3,6 +3,7 @@ Projeto acadêmico para a disciplina de Administração Financeira (Sistemas de 
 
 Alunos: 
 Marcos Felipe Flores Cavalieri - 2020054692
+
 Bianca Gabriela Franco e Silva - 2020092756
 
  Como Rodar
